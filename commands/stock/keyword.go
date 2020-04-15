@@ -8,13 +8,13 @@ import (
 
 type SearchedAssetsResult struct {
 	Keyword    string          `json:"keyword"`
-	Asset      []SearchedAsset `json:"assets"`
+	Assets     []SearchedAsset `json:"assets"`
 	NextCursor string          `json:"nextCursor"`
 }
 
 type SearchedAsset struct {
-	Type             int64  `json:"type"`
-	Code             string `json:"type"`
+	Type             string `json:"type"`
+	Code             string `json:"code"`
 	Name             string `json:"name"`
 	AssetId          string `json:"assetId"`
 	DisplayedSubtype string `json:"displayedSubtype"`
@@ -38,4 +38,12 @@ func SearchAssetsByKeyword(keyword string) (*SearchedAssetsResult, error) {
 	}
 
 	return &result, nil
+}
+
+func (r *SearchedAssetsResult) GetCodes() []string {
+	var codes []string
+	for _, asset := range r.Assets {
+		codes = append(codes, asset.AssetId)
+	}
+	return codes
 }

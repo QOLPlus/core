@@ -59,9 +59,7 @@ type FetchedSecurity struct {
 }
 
 func FetchSecuritiesByCodes(codes []string) (*FetchedSecuritiesResult, error) {
-	ids := strings.Join(codes, ",")
-
-	resp, err := http.Get("https://stockplus.com/api/securities.json?ids=" + ids)
+	resp, err := http.Get("https://stockplus.com/api/securities.json?ids=" + strings.Join(codes, ","))
 	if err != nil {
 		return nil, err
 	}

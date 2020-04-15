@@ -1,25 +1,34 @@
 package main
 
-import "fmt"
-import "github.com/QOLPlus/core/commands/stock"
+import (
+	"fmt"
+	"os"
+
+	"github.com/QOLPlus/core/commands/stock"
+)
 
 func main() {
-	fmt.Println("Run!")
+	if len(os.Args) < 2 {
+		panic("Pass the keyword!")
+	}
 
-	searchAssetsResult, err := stock.SearchAssetsByKeyword("네이")
+	keyword := os.Args[1]
+	fmt.Println("Keyword:", keyword)
+
+	searchAssetsResult, err := stock.SearchAssetsByKeyword(keyword)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(searchAssetsResult)
+	fmt.Println("Searched:", searchAssetsResult)
 
-	fmt.Println("==================")
-
-	codes := []string{"KOREA-A035720", "KOREA-D0011001"}
+	codes := searchAssetsResult.GetCodes()
+	if len(codes) == 0 {
+		panic("No codes!")
+	}
+	fmt.Println("Codes:", codes)
 	fetchSecuritiesResult, err := stock.FetchSecuritiesByCodes(codes)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(fetchSecuritiesResult)
-
-	fmt.Println("End!")
+	fmt.Println("Securities:", fetchSecuritiesResult)
 }
