@@ -52,7 +52,7 @@ func (r *SearchedAssetsResult) FindExactlySameCodesByKeyword(keyword string) []s
 	var codes []string
 	for _, asset := range r.Assets {
 		if asset.Name == keyword {
-			codes = append(codes, asset.Code)
+			codes = append(codes, asset.AssetId)
 			break
 		}
 	}
