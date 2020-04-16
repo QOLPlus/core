@@ -47,3 +47,14 @@ func (r *SearchedAssetsResult) GetCodes() []string {
 	}
 	return codes
 }
+
+func (r *SearchedAssetsResult) FindExactlySameCodesByKeyword(keyword string) []string {
+	var codes []string
+	for _, asset := range r.Assets {
+		if asset.Name == keyword {
+			codes = append(codes, asset.Code)
+			break
+		}
+	}
+	return codes
+}

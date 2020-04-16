@@ -21,10 +21,14 @@ func main() {
 	}
 	fmt.Println("Searched:", searchAssetsResult)
 
-	codes := searchAssetsResult.GetCodes()
+	codes := searchAssetsResult.FindExactlySameCodesByKeyword(keyword)
 	if len(codes) == 0 {
-		panic("No codes!")
+		codes = searchAssetsResult.GetCodes()
+		if len(codes) == 0 {
+			panic("No codes!")
+		}
 	}
+
 	fmt.Println("Codes:", codes)
 	fetchSecuritiesResult, err := stock.FetchSecuritiesByCodes(codes)
 	if err != nil {
