@@ -26,6 +26,7 @@ func SearchAssetsByKeyword(keyword string) (*SearchedAssetsResult, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer func() { _ = resp.Body.Close() }()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
