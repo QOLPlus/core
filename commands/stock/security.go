@@ -58,12 +58,47 @@ type FetchedSecurity struct {
 	TradeTime             string  `json:"tradeTime"`
 }
 
+const quotApi = "https://stockplus.com/api/securities.json"
+
 func FetchSecuritiesByCodes(codes []string) (*FetchedSecuritiesResult, error) {
-	resp, err := http.Get("https://stockplus.com/api/securities.json?ids=" + strings.Join(codes, ","))
+	resp, err := http.Get(quotApi + "?ids=" + strings.Join(codes, ","))
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = resp.Body.Close() }()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	result := FetchedSecuritiesResult{}
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
+var TrendCodes = []string{
+	"KOREA-D0011001", "KOREA-E4012001",
+	"USA-DJI", "USA-COMP", "JAPAN-NI225", "SHANGHAI-000001", "GERMAN-DAX30", "BRITISH-FTSE100",
+}
+
+func FetchTrends(codes []string) (*FetchedSecuritiesResult, error) {
+	var targetCodes []string
+	if len(codes) > 0 {
+		targetCodes = codes
+	} else {
+		targetCodes = TrendCodes
+	}
+
+	resp, err := http.Get(quotApi + "?ids=" + strings.Join(targetCodes, ","))
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = resp.Body.Close() }()
+
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
