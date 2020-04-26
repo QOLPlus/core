@@ -10,6 +10,7 @@ import (
 const weatherUrl = "https://m.weather.naver.com/m/main.nhn?regionCode="
 
 type FetchWeatherResult struct {
+	Location 		   string
 	Temperature        float64
 	TemperatureDayLow  float64
 	TemperatureDayHigh float64
@@ -30,7 +31,9 @@ func FetchWeather(region *RegionEntry) (*FetchWeatherResult, error) {
 		return nil, err
 	}
 
-	result := FetchWeatherResult{}
+	result := FetchWeatherResult{
+		Location: doc.Find(".section_location a.title strong").Text(),
+	}
 	err = parseTemperature(&result, doc)
 	if err != nil {
 		return nil, err
