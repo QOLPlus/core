@@ -1,10 +1,11 @@
 package weather
 
 import (
-	"github.com/PuerkitoBio/goquery"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 type FetchWeatherResult struct {
@@ -51,6 +52,11 @@ func FetchWeather(region *RegionEntry) (*FetchWeatherResult, error) {
 		return nil, err
 	}
 
+	err = parseStatus(&result, doc)
+	if err != nil {
+		return nil, err
+	}
+
 	err = parseDust(&result, doc)
 	if err != nil {
 		return nil, err
@@ -63,26 +69,18 @@ func parseTemperature(result *FetchWeatherResult, doc *goquery.Document) error {
 	current := doc.Find(".today_weather .weather_area .current")
 	result.Temperature = parseOnlyTemperature(current)
 
-	todayHigh := doc.Find(".today_weather .weather_area .degree_group .degree_height")
-	result.TemperatureDayHigh = parseOnlyTemperature(todayHigh)
+	highAndLowParsed := []string{}
+	highAndLow := doc.Find(".week_item.today .day_data .cell_temperature .temperature")
+	highAndLow.Contents().Each(func(i int, selection *goquery.Selection) {
+		if goquery.NodeName(selection) == "#text" {
+			highAndLowParsed = append(highAndLowParsed, strings.ReplaceAll(selection.Text(), "°", ""))
+		}
+	})
+	result.TemperatureDayLow, _ = strconv.ParseFloat(highAndLowParsed[0], 64)
+	result.TemperatureDayHigh, _ = strconv.ParseFloat(highAndLowParsed[1], 64)
 
-	todayLow := doc.Find(".today_weather .weather_area .degree_group .degree_low")
-	result.TemperatureDayLow = parseOnlyTemperature(todayLow)
-
-	todayFeel := doc.Find(".today_weather .weather_area .degree_group .degree_feel")
+	todayFeel := doc.Find(".today_weather .weather_area .summary_list .desc_feeling")
 	result.TemperatureDayFeel = parseOnlyTemperature(todayFeel)
-
-	summary := doc.Find(".today_weather .weather_area .summary")
-	summaryHtml, err := summary.Html()
-	if err != nil {
-		return err
-	}
-	if strings.Contains(summaryHtml, "<br/>") {
-		summarySplit := strings.SplitN(summaryHtml, "<br/>", 2)
-		result.Status = summarySplit[1]
-	} else {
-		result.Status = summary.Text()
-	}
 
 	return nil
 }
@@ -99,6 +97,12 @@ func parseOnlyTemperature(s *goquery.Selection) float64 {
 
 	temperature, _ := strconv.ParseFloat(parsed, 64)
 	return temperature
+}
+
+func parseStatus(result *FetchWeatherResult, doc *goquery.Document) error {
+	summary := doc.Find(".today_weather .weather_area .summary .weather")
+	result.Status = summary.Text()
+	return nil
 }
 
 func parseDust(result *FetchWeatherResult, doc *goquery.Document) error {
