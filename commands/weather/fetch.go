@@ -69,15 +69,24 @@ func parseTemperature(result *FetchWeatherResult, doc *goquery.Document) error {
 	current := doc.Find(".today_weather .weather_area .current")
 	result.Temperature = parseOnlyTemperature(current)
 
-	highAndLowParsed := []string{}
-	highAndLow := doc.Find(".week_item.today .day_data .cell_temperature .temperature")
-	highAndLow.Contents().Each(func(i int, selection *goquery.Selection) {
-		if goquery.NodeName(selection) == "#text" {
-			highAndLowParsed = append(highAndLowParsed, strings.ReplaceAll(selection.Text(), "°", ""))
-		}
-	})
-	result.TemperatureDayLow, _ = strconv.ParseFloat(highAndLowParsed[0], 64)
-	result.TemperatureDayHigh, _ = strconv.ParseFloat(highAndLowParsed[1], 64)
+	degreeGroup := doc.Find(".today_weather .weather_area .degree_group")
+	if len(degreeGroup.Nodes) > 0 {
+		todayHigh := doc.Find(".today_weather .weather_area .degree_group .degree_height")
+		result.TemperatureDayHigh = parseOnlyTemperature(todayHigh)
+
+		todayLow := doc.Find(".today_weather .weather_area .degree_group .degree_low")
+		result.TemperatureDayLow = parseOnlyTemperature(todayLow)
+	} else {
+		highAndLowParsed := []string{}
+		highAndLow := doc.Find(".week_item.today .day_data .cell_temperature .temperature")
+		highAndLow.Contents().Each(func(i int, selection *goquery.Selection) {
+			if goquery.NodeName(selection) == "#text" {
+				highAndLowParsed = append(highAndLowParsed, strings.ReplaceAll(selection.Text(), "°", ""))
+			}
+		})
+		result.TemperatureDayLow, _ = strconv.ParseFloat(highAndLowParsed[0], 64)
+		result.TemperatureDayHigh, _ = strconv.ParseFloat(highAndLowParsed[1], 64)
+	}
 
 	todayFeel := doc.Find(".today_weather .weather_area .summary_list .desc_feeling")
 	result.TemperatureDayFeel = parseOnlyTemperature(todayFeel)
