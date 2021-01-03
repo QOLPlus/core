@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type MarketMeta struct {
+type MarketMaster struct {
 	Market      string `json:"market"`       //"KRW-BTC"
 	KoreanName  string `json:"korean_name"`  // 비트코인
 	EnglishName string `json:"english_name"` // Bitcoin
@@ -42,7 +42,7 @@ type Ticker struct {
 	Timestamp          int64   `json:"timestamp"`
 }
 
-func FetchMarketMeta() (*[]MarketMeta, error) {
+func FetchMarketMasters() (*[]MarketMaster, error) {
 	resp, err := http.Get("https://api.upbit.com/v1/market/all")
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func FetchMarketMeta() (*[]MarketMeta, error) {
 		return nil, err
 	}
 
-	var result []MarketMeta
+	var result []MarketMaster
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
@@ -63,7 +63,7 @@ func FetchMarketMeta() (*[]MarketMeta, error) {
 	return &result, err
 }
 
-func (m *MarketMeta) FetchTicker() (*[]Ticker, error) {
+func (m *MarketMaster) FetchTicker() (*[]Ticker, error) {
 	resp, err := http.Get(
 		fmt.Sprintf("https://api.upbit.com/v1/ticker?markets=%s", m.Market),
 	)
