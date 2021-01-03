@@ -13,7 +13,7 @@ type MarketMeta struct {
 	EnglishName string `json:"english_name"` // Bitcoin
 }
 
-type Market struct {
+type Ticker struct {
 	Market             string  `json:"market"`
 	TradeDate          string  `json:"trade_date"`
 	TradeTime          string  `json:"trade_time"`
@@ -63,7 +63,7 @@ func FetchMarketMeta() (*[]MarketMeta, error) {
 	return &result, err
 }
 
-func (m *MarketMeta) FetchMarket() (*[]Market, error) {
+func (m *MarketMeta) FetchTicker() (*[]Ticker, error) {
 	resp, err := http.Get(
 		fmt.Sprintf("https://api.upbit.com/v1/ticker?markets=%s", m.Market),
 	)
@@ -76,7 +76,7 @@ func (m *MarketMeta) FetchMarket() (*[]Market, error) {
 		return nil, err
 	}
 
-	var result []Market
+	var result []Ticker
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return nil, err
