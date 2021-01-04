@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 type MarketMaster struct {
@@ -63,9 +64,9 @@ func FetchMarketMasters() (*[]MarketMaster, error) {
 	return &result, err
 }
 
-func (m *MarketMaster) FetchTicker() (*[]Ticker, error) {
+func FetchTicker(markets []string) (*[]Ticker, error) {
 	resp, err := http.Get(
-		fmt.Sprintf("https://api.upbit.com/v1/ticker?markets=%s", m.Market),
+		fmt.Sprintf("https://api.upbit.com/v1/ticker?markets=%s", strings.Join(markets, ",")),
 	)
 	if err != nil {
 		return nil, err
