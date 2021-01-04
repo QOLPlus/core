@@ -64,7 +64,7 @@ func FetchMarketMasters() (*[]MarketMaster, error) {
 	return &result, err
 }
 
-func FetchTicker(markets []string) (*[]Ticker, error) {
+func FetchTickerByMarkets(markets []string) (*[]Ticker, error) {
 	resp, err := http.Get(
 		fmt.Sprintf("https://api.upbit.com/v1/ticker?markets=%s", strings.Join(markets, ",")),
 	)
